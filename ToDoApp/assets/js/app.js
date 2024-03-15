@@ -3,6 +3,7 @@ const userSelect = document.getElementById('select-users');
 console.log(userSelect);
 const userContainer = document.getElementById('user-container');
 const taskContainer = document.getElementById('task-container');
+const displayButton = document.getElementById('btndisplay');
 
 userSelect.addEventListener('click',()=>{
     // getAllUsers()
@@ -15,6 +16,7 @@ userSelect.addEventListener('click',()=>{
     })
     //console.log(getAllTasks())
     getTasks(userSelect.value).then((text)=>{
+        taskContainer.style.visibility = 'hidden'
         const ul = taskContainer.children[1]
         // ul.replaceChildren()
         while(ul.firstChild){
@@ -33,6 +35,16 @@ userSelect.addEventListener('click',()=>{
             }            
     })
     
+}); //Fin de select mostrar informacion
+
+displayButton.addEventListener('click',()=>{
+    if (taskContainer.style.visibility === 'visible') {
+        displayButton.innerText = 'Desplegar lista de tareas'
+        taskContainer.style.visibility = 'hidden';
+    } else {
+        displayButton.innerText = 'Ocultar lista de tareas'
+        taskContainer.style.visibility = 'visible';
+    }
 })
 
 function getAllUsers() {
