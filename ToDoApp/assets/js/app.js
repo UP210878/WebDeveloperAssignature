@@ -39,10 +39,8 @@ userSelect.addEventListener('click',()=>{
 
 displayButton.addEventListener('click',()=>{
     if (taskContainer.style.visibility === 'visible') {
-        displayButton.innerText = 'Desplegar lista de tareas'
         taskContainer.style.visibility = 'hidden';
     } else {
-        displayButton.innerText = 'Ocultar lista de tareas'
         taskContainer.style.visibility = 'visible';
     }
 })

@@ -57,7 +57,7 @@ input:checked{
 
 
 .user-container li span:hover{
-    font-size: 40px;
+    font-size: 30px;
     transition-duration: 0.5s;
     color: rgb(185, 255, 255);
 
@@ -65,4 +65,20 @@ input:checked{
 
 .task-container {
     visibility: hidden;
+}
+
+.btn {
+    font-size: 20px;
+    padding: 10px;
+    transition: 0.3s;
+}
+
+.btn:hover{
+    font-size: 25px;
+    background-color: lightblue;
+    color: black;
+    font-weight: 900;
+    padding: 20px;
+    margin-left: 20px;
+    transition-duration: 0.5s;
 }
