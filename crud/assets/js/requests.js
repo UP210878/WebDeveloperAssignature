@@ -34,4 +34,13 @@ export async function getTask(taskId){
      const json = await res.json();
      return json;
 };
+
+export async function updateTask(formdata,taskId) {
+     const res = await fetch(`/api/updateTask.php?id=${taskId}`,{
+          method:"POST",
+          body: formdata
+     });
+     const json = await res.json();
+     return json;
+     };
      

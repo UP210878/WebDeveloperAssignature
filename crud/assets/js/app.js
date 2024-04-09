@@ -1,10 +1,11 @@
-import { deleteTask, createTask, getAllUsers,getTaskUsingUserID, getTask } from "./requests.js";
+import { deleteTask, createTask, getAllUsers,getTaskUsingUserID, getTask, updateTask } from "./requests.js";
 const listUsers = document.getElementById('users');
 const taskTable = document.getElementById('tasks');
 const taskForm = document.getElementById('form-task');
 // const taskTitle = document.getElementById('form-title')
 const completedCheckbox = document.getElementById('completed');
 const submitButton = document.getElementById('insert');
+let pressedButtonId;
 
 document.addEventListener('DOMContentLoaded',async ()=>{
     const allUsers = await getAllUsers();
@@ -49,16 +50,11 @@ listUsers.addEventListener('change',async ()=>{
     }
     tableBody.innerHTML = template
 
-  const deleteButtons = document.querySelectorAll('.deleteBtn');
-  deleteButtons.forEach(button =>{
-  button.addEventListener('click', async ()=>{
-      const taskId = button.id.replace('deleteBtn','');
-      console.log(taskId)
-      const row = document.getElementById(`tablerow${taskId}`);
-      row.remove();
-      await deleteTask(taskId);
-  })
-});
+  addDeleteButtonEvents();
+  addUpdateButtonEvents();
+  submitButton.innerText= "SAVE";
+  submitButton.setAttribute("id","insert");
+  taskForm.children[0].children[0].value =`` //TITULO
 
 });
 
@@ -72,49 +68,123 @@ taskForm.addEventListener('submit', async (e)=>{
 
   console.log(formData);
 
-  try {
-    const json = await createTask(formData);
-    if (json.success) {
-      console.log("JSON ID",json.taskId)
-      const taskInfo = await getTask(json.taskId)
-      console.log("INFO",taskInfo)
-      // Update the DOM with the new task
-      const newRow = document.createElement('tr');
-      newRow.setAttribute("id",`tablerow${taskInfo.id}`)
-      let taskCompleted = "No completada"
+  //PARA INSERCION-----------------------------------------------------------------------------------------------------------------
+  if (submitButton.id == 'insert'){
+    console.log("TAREA INSERTADA");
+    try {
+      const response = await createTask(formData);
+      if (response.success) {
+        console.log("JSON ID",response.taskId)
+        const taskInfo = await getTask(response.taskId)
+        console.log("INFO",formData)
+        // Update the DOM with the new task
+        const newRow = document.createElement('tr');
+        newRow.setAttribute("id",`tablerow${taskInfo.id}`)
+        let taskCompleted = "No completada"
+          if (taskInfo.completed) {
+              taskCompleted = "Completada"
+          }
+        newRow.innerHTML = `
+          <td>${taskInfo.id}</td>
+          <td>${taskInfo.firstname}</td>
+          <td>${taskInfo.title}</td>
+          <td>${taskCompleted}</td>
+          <td>
+            <button class="btn btn-info btn-sm updateBtn" id="updateBtn${taskInfo.id}">
+              <span>Update</span> <i class="nf nf-md-pencil"></i>
+            </button>
+            <button class="btn btn-danger btn-sm deleteBtn" id="deleteBtn${taskInfo.id}">
+              <span>Delete</span> <i class="nf nf-cod-trash"></i>
+            </button>
+          </td>
+        `;
+        taskTable.children[1].appendChild(newRow);
+  
+      addUpdateButtonEvents();
+      taskForm.children[0].children[0].value =`` //TITULO
+      } else {
+        console.error('Failed to create task');
+      }
+    } catch (error) {
+      console.error('Error in INSERTING:', error);
+    };
+  };
+  //FIN INSERCION------------------------------------------------------------------------------------------------------------------
+
+
+
+  //PARA UPDATE----------------------------------------------------------------------------------------------------------------
+  if (submitButton.id == 'update'){
+    console.log("TAREA ACTUALIZADA");
+    try {
+      const response = await updateTask(formData,pressedButtonId)
+      if (response.success) {
+        const rowToUpdate = document.getElementById(`tablerow${pressedButtonId}`);
+        const taskInfo = await getTask(pressedButtonId);
+        let taskCompleted = "No completada"
         if (taskInfo.completed) {
             taskCompleted = "Completada"
-        }
-      newRow.innerHTML = `
-        <td>${taskInfo.id}</td>
-        <td>${taskInfo.firstname}</td>
-        <td>${taskInfo.title}</td>
-        <td>${taskCompleted}</td>
-        <td>
-          <button class="btn btn-info btn-sm updateBtn" id="updateBtn${taskInfo.id}">
-            <span>Update</span> <i class="nf nf-md-pencil"></i>
-          </button>
-          <button class="btn btn-danger btn-sm deleteBtn" id="deleteBtn${taskInfo.id}">
-            <span>Delete</span> <i class="nf nf-cod-trash"></i>
-          </button>
-        </td>
-      `;
-      taskTable.children[1].appendChild(newRow);
+        };
+        rowToUpdate.innerHTML = `
+          <td>${pressedButtonId}</td>
+          <td>${taskInfo.firstname}</td>
+          <td>${taskInfo.title}</td>
+          <td>${taskCompleted}</td>
+          <td>
+            <button class="btn btn-info btn-sm updateBtn" id="updateBtn${taskInfo.id}">
+              <span>Update</span> <i class="nf nf-md-pencil"></i>
+            </button>
+            <button class="btn btn-danger btn-sm deleteBtn" id="deleteBtn${taskInfo.id}">
+              <span>Delete</span> <i class="nf nf-cod-trash"></i>
+            </button>
+          </td>
+        `;
+        //RESET BUTTON
+        submitButton.innerText= "SAVE";
+        submitButton.setAttribute("id","insert");
+        taskForm.children[0].children[0].value =`` //TITULO
 
-      const deleteButtons = document.querySelectorAll('.deleteBtn');
-      deleteButtons.forEach(button =>{
-      button.addEventListener('click', async ()=>{
-          const taskId = button.id.replace('deleteBtn','');
-          console.log(taskId)
-          const row = document.getElementById(`tablerow${taskId}`);
-          row.remove();
-          await deleteTask(taskId);
-      })
-    });
-    } else {
-      console.error('Failed to create task');
+      } else {
+        console.error("Response unsuccessful, failed to update task")
+      }
+    } catch (error) {
+      console.error('Error in UPDATING:', error);
     }
-  } catch (error) {
-    console.error('Error:', error);
-  }
+  };
+  //FIN UPDATE------------------------------------------------------------------------------------------------------------------
+  
+  addDeleteButtonEvents();  
+  addUpdateButtonEvents();
 });
+
+function addUpdateButtonEvents() {
+  const updateButtons = document.querySelectorAll('.updateBtn');
+  updateButtons.forEach(button =>{
+  button.addEventListener('click', async (e)=>{
+      e.preventDefault()
+      const taskId = button.id.replace('updateBtn','');
+      const taskInfo = await getTask(taskId);
+      let taskCheck;
+      pressedButtonId = taskId;
+      taskInfo.completed === true ? taskCheck='true' : taskCheck='';
+      console.log(taskInfo);
+      taskForm.children[0].children[0].value =`${taskInfo.title}` //TITULO
+      taskForm.children[2].children[0].checked = taskCheck //COMPLETO
+      submitButton.innerText= "UPDATE";
+      submitButton.setAttribute("id","update");
+  })
+}); 
+};
+
+function addDeleteButtonEvents(){
+  const deleteButtons = document.querySelectorAll('.deleteBtn');
+        deleteButtons.forEach(button =>{
+        button.addEventListener('click', async ()=>{
+            const taskId = button.id.replace('deleteBtn','');
+            console.log(taskId)
+            const row = document.getElementById(`tablerow${taskId}`);
+            row.remove();
+            await deleteTask(taskId);
+        });
+      });
+}
