@@ -6,7 +6,7 @@ export async function getAllUsers() {
      return json;
     };
 
-export async function getTaskUsingID(idUser) {
+export async function getTaskUsingUserID(idUser) {
      const res = await fetch(`/api/getTasks.php?id=${idUser}`);
      const json = await res.json();
      return json;
@@ -18,7 +18,6 @@ export async function createTask(formdata) {
           body: formdata
      });
      const json = await res.json();
-     console.log(json)
      return json;
      };
 
@@ -28,5 +27,11 @@ export async function deleteTask(taskId){
      const json = await res.json();
      console.log(json);
      return json;
-}
+};
+
+export async function getTask(taskId){
+     const res = await fetch(`/api/getTask.php?id=${taskId}`);
+     const json = await res.json();
+     return json;
+};
      
