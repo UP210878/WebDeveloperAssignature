@@ -2,7 +2,7 @@ import { deleteTask, createTask, getAllUsers,getTaskUsingUserID, getTask, update
 const listUsers = document.getElementById('users');
 const taskTable = document.getElementById('tasks');
 const taskForm = document.getElementById('form-task');
-// const taskTitle = document.getElementById('form-title')
+const formTitle = document.getElementById('form-title')
 const completedCheckbox = document.getElementById('completed');
 const submitButton = document.getElementById('insert');
 let pressedButtonId;
@@ -53,6 +53,7 @@ listUsers.addEventListener('change',async ()=>{
   addDeleteButtonEvents();
   addUpdateButtonEvents();
   submitButton.innerText= "SAVE";
+  formTitle.innerText = "Insert Task";
   submitButton.setAttribute("id","insert");
   taskForm.children[0].children[0].value =`` //TITULO
 
@@ -140,6 +141,7 @@ taskForm.addEventListener('submit', async (e)=>{
           </td>
         `;
         //RESET BUTTON
+        formTitle.innerText = "Insert Task";
         submitButton.innerText= "SAVE";
         submitButton.setAttribute("id","insert");
         taskForm.children[0].children[0].value =`` //TITULO
@@ -168,10 +170,12 @@ function addUpdateButtonEvents() {
       pressedButtonId = taskId;
       taskInfo.completed === true ? taskCheck='true' : taskCheck='';
       console.log(taskInfo);
-      taskForm.children[0].children[0].value =`${taskInfo.title}` //TITULO
+      taskForm.children[0].children[0].value =`${taskInfo.title}` //NOMBRE DE TAREA
+      formTitle.innerText = "Modify Task";//TITULO FORMULARIO
       taskForm.children[2].children[0].checked = taskCheck //COMPLETO
       submitButton.innerText= "UPDATE";
       submitButton.setAttribute("id","update");
+      window.scrollTo({ top: 0, behavior:'smooth'});
   })
 }); 
 };
